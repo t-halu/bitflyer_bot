@@ -1,17 +1,29 @@
 var request = require('request');
+var crypto=require('crypto');
 var fs = require('fs');
-var config = JSON.parse(fs.readFileSync('C:/bitflyer_apikey.json', 'utf8'))
+var bitflyer_apikey = JSON.parse(fs.readFileSync('C:/bitflyer_apikey.json', 'utf8'))
 //gitにあげたくないので秘密鍵はCドライブ直下においとく
-const ApiKey = config.apikey;
-const ApiSecret = config.apisecret;
-const API_VERSION='/V1';
+const ApiKey = bitflyer_apikey.apikey;
+const ApiSecret = bitflyer_apikey.apisecret;
+const API_VERSION = '/V1';
+var timestamp = Date.now().toString();
+var method = 'GET';
+var path = '/me/getaddresses';
+var text = timestamp + method + API_VERSION + path;
+var sign = crypto.createHmac('sha256', ApiSecret).update(text).digest('hex');
 
-console.log(ApiKey);
+var options = {
+  url: 'https://api.bitflyer.jp' + API_VERSION + path,
+  method: method,
+  headers: {
+    'ACCESS-KEY': ApiKey,
+    'ACCESS-TIMESTAMP': timestamp,
+    'ACCESS-SIGN': sign,
+    'Content-Type': 'application/json'
+  }
+}
 
-/*var path = '/getmarkets';
-var url = 'https://api.bitflyer.jp' + API_VERSION + path;
-request(url, function(err, response, body) {
-  console.log(response);
+
+request(options, function(err, response, body) {
   console.log(body);
 });
-*/
