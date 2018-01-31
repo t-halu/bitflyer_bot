@@ -1,7 +1,8 @@
 var request = require('request');
-var path = '/v1/getmarkets';
-var query = '';
-var url = 'https://api.bitflyer.jp' + path + query;
-request(url, function(err, response, payload) {
-  console.log(payload);
+const API_VERSION='/V1';
+var path = '/getmarkets';
+var url = 'https://api.bitflyer.jp' + API_VERSION + path;
+request(url, function(err, response, body) {
+  console.log(response);
+  console.log(body);
 });
