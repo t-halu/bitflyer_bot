@@ -27,6 +27,16 @@ function call(method, path, body, callback) {
 }
 //汎用的なAPI呼び出し関数
 
-call('GET','/me/getaddresses','', function(err, response, body) {
-  console.log(body);
+function getMarkets(callback) {
+  call('GET', '/getmarkets', '', function(err, response, body) {
+    console.log(body);
+  });
+  if (callback) {
+    callback();
+  }
+}
+//マーケットの一覧を呼び出し
+
+getMarkets(function() {
+  console.log('完了')
 });
