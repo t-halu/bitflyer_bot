@@ -6,6 +6,7 @@ var bitflyer_apikey = JSON.parse(fs.readFileSync('C:/bitflyer_apikey.json', 'utf
 const ApiKey = bitflyer_apikey.apikey;
 const ApiSecret = bitflyer_apikey.apisecret;
 const API_VERSION = '/V1';
+const PRODUCT_CODE = 'FX_BTC_JPY';
 
 function call(method, path, body, callback) {
   var timestamp = Date.now().toString();
@@ -29,7 +30,7 @@ function call(method, path, body, callback) {
 
 function getMarkets(callback) {
   call('GET', '/getmarkets', '', function(err, response, body) {
-    console.log(body);
+    console.log(JSON.parse(body)[1].product_code);
   });
   if (callback) {
     callback();
@@ -48,15 +49,17 @@ function getMarkets(callback) {
     "product_code": "BTCJPY05MAY2017",
     "alias": "BTCJPY_MAT2WK"
   }
-]*/
+]
+alias: 以下の呼出で product_code を指定するときに、代わりに使用できます。*/
+
 function getBoard(callback) {
 
-  call('GET', '/getboard', '', function(err, response, body) {
-    console.log(JSON.parse(body).asks[0].price+':'+JSON.parse(body).asks[0].size);
+  call('GET', '/getboard?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
+    //console.log(JSON.parse(body).asks[0].price+':'+JSON.parse(body).asks[0].size);
     //売れる価格と量，配列値とともに増加
-    console.log(JSON.parse(body).mid_price);
+    //console.log(JSON.parse(body).mid_price);
     //最終取引価格
-    console.log(JSON.parse(body).bids[0].price+':'+JSON.parse(body).bids[0].size);
+    //console.log(JSON.parse(body).bids[0].price+':'+JSON.parse(body).bids[0].size);
     //買える価格と量，配列値とともに減少
 
   });
@@ -64,8 +67,31 @@ function getBoard(callback) {
     callback();
   }
 }
+/*板情報を呼び出し
+{
+  "mid_price": 33320,
+  "bids": [
+    {
+      "price": 30000,
+      "size": 0.1
+    },
+    {
+      "price": 25570,
+      "size": 3
+    }
+  ],
+  "asks": [
+    {
+      "price": 36640,
+      "size": 5
+    },
+    {
+      "price": 36700,
+      "size": 1.2
+    }
+  ]
+}*/
 
-/*getMarkets(function() {
-});*/
 
+getMarkets();
 getBoard();
