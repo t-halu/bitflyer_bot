@@ -50,44 +50,22 @@ function getMarkets(callback) {
   }
 ]*/
 function getBoard(callback) {
-  var mid_price;
+
   call('GET', '/getboard', '', function(err, response, body) {
-    //console.log(body);
-    mid_price=JSON.parse(body).mid_price;
-    //console.log(JSON.parse(body).mid_price);
+    console.log(JSON.parse(body).asks[0].price+':'+JSON.parse(body).asks[0].size);
+    //売れる価格と量，配列値とともに増加
+    console.log(JSON.parse(body).mid_price);
+    //最終取引価格
+    console.log(JSON.parse(body).bids[0].price+':'+JSON.parse(body).bids[0].size);
+    //買える価格と量，配列値とともに減少
+
   });
   if (callback) {
     callback();
   }
 }
-/*板情報を呼び出し
-{
-  "mid_price": 33320,
-  "bids": [
-    {
-      "price": 30000,
-      "size": 0.1
-    },
-    {
-      "price": 25570,
-      "size": 3
-    }
-  ],
-  "asks": [
-    {
-      "price": 36640,
-      "size": 5
-    },
-    {
-      "price": 36700,
-      "size": 1.2
-    }
-  ]
-}*/
 
 /*getMarkets(function() {
 });*/
 
-getBoard(function(mid_price) {
-  console.log(mid_price);
-});
+getBoard();
