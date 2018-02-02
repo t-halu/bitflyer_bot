@@ -49,20 +49,16 @@ function getMarkets(callback) {
     "alias": "BTCJPY_MAT2WK"
   }
 ]*/
-
 function getBoard(callback) {
   var mid_price;
   call('GET', '/getboard', '', function(err, response, body) {
     //console.log(body);
     mid_price=JSON.parse(body).mid_price;
-    console.log(mid_price);
+    //console.log(JSON.parse(body).mid_price);
   });
   if (callback) {
     callback();
   }
-  console.log(mid_price);
-  return mid_price;
-
 }
 /*板情報を呼び出し
 {
@@ -92,4 +88,6 @@ function getBoard(callback) {
 /*getMarkets(function() {
 });*/
 
-console.log(getBoard());
+getBoard(function(mid_price) {
+  console.log(mid_price);
+});
