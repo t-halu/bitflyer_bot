@@ -31,10 +31,11 @@ function call(method, path, body, callback) {
 function getMarkets(callback) {
   call('GET', '/getmarkets', '', function(err, response, body) {
     //console.log(JSON.parse(body)[1].product_code);
+    if (callback) {
+      callback(body);
+    }
   });
-  if (callback) {
-    callback();
-  }
+
 }
 /*マーケットの一覧を呼び出し
 [
@@ -61,11 +62,10 @@ function getBoard(callback) {
     //最終取引価格
     //console.log(JSON.parse(body).bids[0].price+':'+JSON.parse(body).bids[0].size);
     //買える価格と量，配列値とともに減少
-
+    if (callback) {
+      callback(body);
+    }
   });
-  if (callback) {
-    callback();
-  }
 }
 /*板情報を呼び出し
 {
@@ -96,11 +96,10 @@ function getTicker(callback) {
 
   call('GET', '/getticker?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body).ltp);
-
+    if (callback) {
+      callback(body);
+    }
   });
-  if (callback) {
-    callback();
-  }
 }
 /*Tickerを取得
 {
@@ -127,10 +126,11 @@ function getExecutions(callback) {
   call('GET', '/getexecutions?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body)[0]);
     //新しい順に配列に格納される
+    if (callback) {
+      callback(body);
+    }
   });
-  if (callback) {
-    callback();
-  }
+
 }
 /*約定履歴を取得
 [
@@ -164,11 +164,12 @@ after: このパラメータに指定した値より大きい id を持つデー
 function getBoardstate(callback) {
 
   call('GET', '/getboardstate?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
-    console.log(JSON.parse(body).health);
+    //console.log(JSON.parse(body).health);
+    if (callback) {
+      callback(body);
+    }
   });
-  if (callback) {
-    callback();
-  }
+
 }
 /*板の状態を取得
 {
@@ -205,19 +206,17 @@ special_quotation: Lightning Futures の SQ（清算値）
 function getHealth(callback) {
 
   call('GET', '/gethealth?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
-    console.log(JSON.parse(body).status);
+    //console.log(JSON.parse(body).status);
+    if (callback) {
+      callback(body);
+    }
   });
-  if (callback) {
-    callback();
-  }
 }
 /*取引所の状態取得。boardstateより速い
 {
   "status": "NORMAL"
 }
 */
-
-
 
 getMarkets();
 getBoard();
