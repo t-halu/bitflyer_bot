@@ -303,14 +303,13 @@ type: 通常の預入用アドレスは "NORMAL" となります。
 currency_code: ビットコイン預入用アドレスは "BTC", イーサ預入用アドレスの場合は "ETH"
 */
 
-function sendChildOrder(type, side, price, size, minute_to_expire, callback) {
+function sendChildOrder(type, side, price, size, callback) {
   var body = JSON.stringify({
     product_code: PRODUCT_CODE,
     child_order_type: type,
     side: side,
     price: price,
     size: size,
-    minute_to_expire: minute_to_expire
   });
   call(POST, '/me/sendchildorder', body, function(err, response, payload) {
     //console.log(JSON.parse(payload));
@@ -337,11 +336,10 @@ child_order_acceptance_id: API の受付 ID です。注文を指定する際に
  注文をキャンセルする, 約定の一覧を取得 の項もご確認ください。
 */
 
-function sendParentOrder(order_method, minute_to_expire, order_index, callback) {
+function sendParentOrder(order_method, order_index, callback) {
   var body = JSON.stringify({
 
     order_method: order_method,
-    minute_to_expire: minute_to_expire,
     parameters: order_index
   });
   call(POST, '/me/sendparentorder', body, function(err, response, payload) {
@@ -443,6 +441,8 @@ after: このパラメータに指定した値より大きい id を持つデー
 change: 証拠金の変動額です。
 amount: 変動後の証拠金の残高です。
 */
+
+
 
 
 /*getMarkets();
