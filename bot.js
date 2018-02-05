@@ -460,36 +460,36 @@ function StopOrder(side, trigger_price, size, callback) {
   }], callback);
 }
 //STOP注文
-function StopLimitOrder(side, trigger_price,price, size, callback) {
+function StopLimitOrder(side, trigger_price, price, size, callback) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
     condition_type: STOP_LIMIT,
     side: side,
     size: size,
-    price:price,
+    price: price,
     trigger_price: trigger_price
   }], callback);
 }
 //STOPLIMIT注文
-function TrailOrder(side, size,offset, callback) {
+function TrailOrder(side, size, offset, callback) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
     condition_type: TRAIL,
     side: side,
     size: size,
-    offset:offset
+    offset: offset
   }], callback);
 }
 //TRAIL注文
-function IfdOrder(order_index,callback){
-  order_index[0]['product_code']=PRODUCT_CODE;
-  order_index[1]['product_code']=PRODUCT_CODE;
+function IfdOrder(order_index, callback) {
+  order_index[0]['product_code'] = PRODUCT_CODE;
+  order_index[1]['product_code'] = PRODUCT_CODE;
   console.log(order_index);
   sendParentOrder('IFD', order_index, callback);
-  }
+}
 //IFD注文
 
-IfdOrder( [{
+IfdOrder([{
   condition_type: LIMIT,
   side: BUY,
   size: 0.002,
