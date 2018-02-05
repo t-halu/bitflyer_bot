@@ -339,7 +339,6 @@ child_order_acceptance_id: API の受付 ID です。注文を指定する際に
 
 function sendParentOrder(order_method, order_index, callback) {
   var body = JSON.stringify({
-
     order_method: order_method,
     parameters: order_index
   });
@@ -460,12 +459,54 @@ function StopOrder(side, trigger_price, size, callback) {
     trigger_price: trigger_price
   }], callback);
 }
+//STOP注文
+function StopLimitOrder(side, trigger_price,price, size, callback) {
+  sendParentOrder('SIMPLE', [{
+    product_code: PRODUCT_CODE,
+    condition_type: STOP_LIMIT,
+    side: side,
+    size: size,
+    price:price,
+    trigger_price: trigger_price
+  }], callback);
+}
+//STOPLIMIT注文
+function TrailOrder(side, size,offset, callback) {
+  sendParentOrder('SIMPLE', [{
+    product_code: PRODUCT_CODE,
+    condition_type: TRAIL,
+    side: side,
+    size: size,
+    offset:offset
+  }], callback);
+}
+//TRAIL注文
+function IfdOrder(order_index,callback){
+  order_index[0]['product_code']=PRODUCT_CODE;
+  order_index[1]['product_code']=PRODUCT_CODE;
+  console.log(order_index);
+  sendParentOrder('IFD', order_index, callback);
+  }
+//IFD注文
 
+IfdOrder( [{
+  condition_type: LIMIT,
+  side: BUY,
+  size: 0.002,
+  price: 600000
+}, {
+  condition_type: LIMIT,
+  side: SELL,
+  size: 0.001,
+  price: 700000
+}], function(payload) {
+  console.log(payload.parent_order_acceptance_id);
+});
 
 
 //MarketOrder(SELL,0.001);
 //LimitOrder(SELL, 790000, 0.001);
-StopOrder(SELL, 500000, 0.001);
+//StopLimitOrder(SELL, 500000,490000, 0.001);
 /*getMarkets();
 getBoard();
 getTicker();
@@ -475,10 +516,10 @@ getHealth();
 getBalance();
 getCollateral();
 getAddresses();
-sendChildOrder(LIMIT, BUY, 600000, 0.001, null, function(payload) {
+sendChildOrder(LIMIT, BUY, 600000, 0.001, function(payload) {
   console.log(payload.child_order_acceptance_id);
 });
-sendParentOrder('IFDOCO', null, [{
+sendParentOrder('IFDOCO', [{
   product_code: PRODUCT_CODE,
   condition_type: LIMIT,
   side: BUY,
