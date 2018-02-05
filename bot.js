@@ -7,6 +7,8 @@ const ApiKey = bitflyer_apikey.apikey;
 const ApiSecret = bitflyer_apikey.apisecret;
 const API_VERSION = '/V1';
 const PRODUCT_CODE = 'FX_BTC_JPY';
+const GET = 'GET';
+const POST = 'POST';
 
 function call(method, path, body, callback) {
   var timestamp = Date.now().toString();
@@ -29,7 +31,7 @@ function call(method, path, body, callback) {
 //汎用的なAPI呼び出し関数
 
 function getMarkets(callback) {
-  call('GET', '/getmarkets', '', function(err, response, body) {
+  call(GET, '/getmarkets', '', function(err, response, body) {
     //console.log(JSON.parse(body)[1].product_code);
     if (callback) {
       callback(JSON.parse(body));
@@ -55,7 +57,7 @@ alias: 以下の呼出で product_code を指定するときに、代わりに�
 
 function getBoard(callback) {
 
-  call('GET', '/getboard?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
+  call(GET, '/getboard?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body).asks[0].price+':'+JSON.parse(body).asks[0].size);
     //売れる価格と量，配列値とともに増加
     //console.log(JSON.parse(body).mid_price);
@@ -94,7 +96,7 @@ function getBoard(callback) {
 
 function getTicker(callback) {
 
-  call('GET', '/getticker?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
+  call(GET, '/getticker?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body).ltp);
     if (callback) {
       callback(JSON.parse(body));
@@ -123,7 +125,7 @@ volume: 24 時間の取引量
 
 function getExecutions(callback) {
 
-  call('GET', '/getexecutions?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
+  call(GET, '/getexecutions?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body)[0]);
     //新しい順に配列に格納される
     if (callback) {
@@ -163,7 +165,7 @@ after: このパラメータに指定した値より大きい id を持つデー
 
 function getBoardstate(callback) {
 
-  call('GET', '/getboardstate?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
+  call(GET, '/getboardstate?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body).health);
     if (callback) {
       callback(JSON.parse(body));
@@ -205,7 +207,7 @@ special_quotation: Lightning Futures の SQ（清算値）
 
 function getHealth(callback) {
 
-  call('GET', '/gethealth?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
+  call(GET, '/gethealth?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body).status);
     if (callback) {
       callback(JSON.parse(body));
@@ -220,7 +222,7 @@ function getHealth(callback) {
 
 function getBalance(callback) {
 
-  call('GET', '/me/getbalance', '', function(err, response, body) {
+  call(GET, '/me/getbalance', '', function(err, response, body) {
     //console.log(JSON.parse(body));
     if (callback) {
       callback(JSON.parse(body));
@@ -249,7 +251,7 @@ function getBalance(callback) {
 
 function getCollateral(callback) {
 
-  call('GET', '/me/getcollateral', '', function(err, response, body) {
+  call(GET, '/me/getcollateral', '', function(err, response, body) {
     console.log(JSON.parse(body));
     if (callback) {
       callback(JSON.parse(body));
@@ -271,7 +273,7 @@ keep_rate: 現在の証拠金維持率です。
 
 function getAddresses(callback) {
 
-  call('GET', '/me/getaddresses', '', function(err, response, body) {
+  call(GET, '/me/getaddresses', '', function(err, response, body) {
     //console.log(JSON.parse(body));
     if (callback) {
       callback(JSON.parse(body));
