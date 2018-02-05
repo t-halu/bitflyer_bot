@@ -9,6 +9,12 @@ const API_VERSION = '/V1';
 const PRODUCT_CODE = 'FX_BTC_JPY';
 const GET = 'GET';
 const POST = 'POST';
+const MARKET = 'MARKET';
+const LIMIT = 'LIMIT';
+const STOP = 'STOP';
+const STOP_LIMIT = 'STOP_LIMIT';
+const BUY = 'BUY'
+const SELL = 'SELL'
 
 function call(method, path, body, callback) {
   var timestamp = Date.now().toString();
@@ -297,6 +303,45 @@ type: 通常の預入用アドレスは "NORMAL" となります。
 currency_code: ビットコイン預入用アドレスは "BTC", イーサ預入用アドレスの場合は "ETH"
 */
 
+function sendChildorder(type, side, price, size, minute_to_expire, callback) {
+  var body = JSON.stringify({
+    product_code: PRODUCT_CODE,
+    child_order_type: type,
+    side: side,
+    price: price,
+    size: size,
+    minute_to_expire: minute_to_expire
+  });
+  call(POST, '/me/sendchildorder', body, function(err, response, body) {
+    //console.log(JSON.parse(body));
+    console.log("数量 :" + size)
+    console.log("指値価格 :" + price)
+    console.log("売り買い :" + side)
+    console.log("注文ID :" + body);
+    if (callback) {
+      callback(JSON.parse(body));
+    }
+  });
+}
+/*子注文をする（成行と指値のみ）
+bodyパラメータ
+
+product_code: 必須。注文するプロダクトです。マーケットの一覧で取得できる product_code または alias のいずれかを指定してください。
+child_order_type: 必須。指値注文の場合は "LIMIT", 成行注文の場合は "MARKET" を指定します。
+side: 必須。買い注文の場合は "BUY", 売り注文の場合は "SELL" を指定します。
+price: 価格を指定します。child_order_type に "LIMIT" を指定した場合は必須です。
+size: 必須。注文数量を指定します。
+minute_to_expire: 期限切れまでの時間を分で指定します。省略した場合の値は 43200 (30 日間) です。
+time_in_force: 執行数量条件 を "GTC", "IOC", "FOK" のいずれかで指定します。省略した場合の値は "GTC" です。
+レスポンス
+{
+    "child_order_acceptance_id": "JRF20150707-050237-639234"
+}
+child_order_acceptance_id: API の受付 ID です。注文を指定する際に、child_order_id の代わりに指定できます。
+ 注文をキャンセルする, 約定の一覧を取得 の項もご確認ください。
+*/
+
+
 /*getMarkets();
 getBoard();
 getTicker();
@@ -306,7 +351,7 @@ getHealth();
 getBalance();
 getCollateral();
 getAddresses();*/
-
+sendChildorder(MARKET, SELL, null, 0.001);
 
 //即時関数でなんかしたいとき
 /*(function() {
