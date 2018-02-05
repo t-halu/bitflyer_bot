@@ -399,6 +399,52 @@ function CancelAllChildOrders(callback) {
 }
 //全注文キャンセル
 
+function getCollateralHistory(callback){
+
+  call(GET, '/me/getcollateralhistory', '', function(err, response, payload) {
+    console.log(JSON.parse(payload));
+    if (callback) {
+      callback(JSON.parse(payload));
+    }
+  });
+}
+/*証拠金の変動履歴を取得
+クエリパラメータ：
+count: 結果の個数を指定します。省略した場合の値は 100 です。
+before: このパラメータに指定した値より小さい id を持つデータを取得します。
+after: このパラメータに指定した値より大きい id を持つデータを取得します。
+レスポンス
+[
+  {
+    "id": 4995,
+    "currency_code": "JPY",
+    "change": -6,
+    "amount": -6,
+    "reason_code": "CLEARING_COLL",
+    "date": "2017-05-18T02:37:41.327"
+  },
+  {
+    "id": 4994,
+    "currency_code": "JPY",
+    "change": 2083698,
+    "amount": 0,
+    "reason_code": "EXCHANGE_COLL",
+    "date": "2017-04-28T03:05:07.493"
+  },
+  {
+    "id": 4993,
+    "currency_code": "BTC",
+    "change": -14.69001618,
+    "amount": 34.97163164,
+    "reason_code": "EXCHANGE_COLL",
+    "date": "2017-04-28T03:05:07.493"
+  }
+]
+change: 証拠金の変動額です。
+amount: 変動後の証拠金の残高です。
+*/
+
+
 /*getMarkets();
 getBoard();
 getTicker();
@@ -410,7 +456,7 @@ getCollateral();
 getAddresses();
 sendChildOrder(LIMIT, BUY, 600000, 0.001, null, function(payload) {
   console.log(payload.child_order_acceptance_id);
-});*/
+});
 sendParentOrder('IFDOCO', null, [{
   product_code: PRODUCT_CODE,
   condition_type: LIMIT,
@@ -432,7 +478,7 @@ sendParentOrder('IFDOCO', null, [{
 }], function(payload) {
   console.log(payload.parent_order_acceptance_id);
 });
-//CancelAllChildOrders();
+CancelAllChildOrders();*/
 
 //即時関数でなんかしたいとき
 /*(function() {
