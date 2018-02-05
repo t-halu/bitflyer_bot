@@ -314,10 +314,6 @@ function sendChildorder(type, side, price, size, minute_to_expire, callback) {
   });
   call(POST, '/me/sendchildorder', body, function(err, response, payload) {
     //console.log(JSON.parse(payload));
-    console.log("数量 :" + size)
-    console.log("指値価格 :" + price)
-    console.log("売り買い :" + side)
-    console.log("注文ID :" + payload);
     if (callback) {
       callback(JSON.parse(payload));
     }
@@ -342,6 +338,54 @@ child_order_acceptance_id: API の受付 ID です。注文を指定する際に
 */
 
 
+/*親注文をする
+bodyパラメータ
+order_method: 注文方法です。以下の値のいずれかを指定してください。省略した場合の値は "SIMPLE" です。
+"SIMPLE": 1 つの注文を出す特殊注文です。
+"IFD": IFD 注文を行います。一度に 2 つの注文を出し、最初の注文が約定したら 2 つめの注文が自動的に発注される注文方法です。
+"OCO": OCO 注文を行います。2 つの注文を同時に出し、一方の注文が成立した際にもう一方の注文が自動的にキャンセルされる注文方法です。
+"IFDOCO": IFD-OCO 注文を行います。最初の注文が約定した後に自動的に OCO 注文が発注される注文方法です。
+minute_to_expire: 期限切れまでの時間を分で指定します。省略した場合の値は 43200 (30 日間) です。
+time_in_force: 執行数量条件 を "GTC", "IOC", "FOK" のいずれかで指定します。省略した場合の値は "GTC" です。
+parameters: 必須。発注する注文のパラメータを指定する配列です。 指定した order_method の値によって、必要な配列の長さが異なります。
+"SIMPLE" の場合、1 つのパラメータを指定します。
+"IFD" の場合、2 つ指定します。 1 つめのパラメータが、最初に発注される注文のパラメータです。 2 つめは、最初の注文の約定後に発注される注文のパラメータになります。
+"OCO" の場合、2 つ指定します。 パラメータをもとに 2 つの注文が同時に出されます。
+"IFDOCO" の場合、3 つ指定します。 1 つめのパラメータが、最初に発注される注文のパラメータです。 その注文が約定した後、2 つめと 3 つめのパラメータをもとに OCO 注文が出されます。
+parameters には以下のキーと値を持つオブジェクトの配列を指定します。
+
+product_code: 必須。注文するプロダクトです。マーケットの一覧で取得できる product_code または alias のいずれかを指定してください。
+condition_type: 必須。注文の執行条件です。以下の値のうちいずれかを指定してください。
+"LIMIT": 指値注文。
+"MARKET" 成行注文。
+"STOP": ストップ注文。
+"STOP_LIMIT": ストップ・リミット注文。
+"TRAIL": トレーリング・ストップ注文。
+side: 必須。買い注文の場合は "BUY", 売り注文の場合は "SELL" を指定します。
+size: 必須。注文数量を指定します。
+price: 価格を指定します。 condition_type に "LIMIT" または "STOP_LIMIT" を選んだ場合は必須です。
+trigger_price: ストップ注文のトリガー価格を指定します。 condition_type に "STOP" または "STOP_LIMIT" を選んだ場合は必須です。
+offset: トレーリング・ストップ注文のトレール幅を、正の整数で指定します。 condition_type に "TRAIL" を選んだ場合は必須です。
+
+レスポンス
+{
+  "parent_order_acceptance_id": "JRF20150707-050237-639234"
+}
+*/
+
+function CancelAllChildorders(callback) {
+  body=JSON.stringify({
+    product_code:PRODUCT_CODE
+  });
+  call(POST, '/me/cancelallchildorders', body, function(err, response, payload) {
+    //console.log(JSON.parse(payload));
+    if (callback) {
+      callback(JSON.parse(payload));
+    }
+  });
+}
+//全注文キャンセル
+
 /*getMarkets();
 getBoard();
 getTicker();
@@ -351,9 +395,10 @@ getHealth();
 getBalance();
 getCollateral();
 getAddresses();*/
-sendChildorder(MARKET, SELL, null, 0.001, function(payload) {
-  console.log(payload);
+sendChildorder(LIMIT, BUY, 600000, 0.001, null, function(payload) {
+  console.log(payload.child_order_acceptance_id);
 });
+CancelAllChildorders();
 
 //即時関数でなんかしたいとき
 /*(function() {
