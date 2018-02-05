@@ -13,6 +13,7 @@ const MARKET = 'MARKET';
 const LIMIT = 'LIMIT';
 const STOP = 'STOP';
 const STOP_LIMIT = 'STOP_LIMIT';
+const TRAIL = 'TRAIL';
 const BUY = 'BUY'
 const SELL = 'SELL'
 
@@ -397,7 +398,7 @@ function CancelAllChildOrders(callback) {
 }
 //全注文キャンセル
 
-function getCollateralHistory(callback){
+function getCollateralHistory(callback) {
 
   call(GET, '/me/getcollateralhistory', '', function(err, response, payload) {
     console.log(JSON.parse(payload));
@@ -442,9 +443,29 @@ change: 証拠金の変動額です。
 amount: 変動後の証拠金の残高です。
 */
 
+function MarketOrder(side, size, callback) {
+  sendChildOrder(MARKET, side, null, size, callback);
+}
+//成行注文
+function LimitOrder(side, price, size, callback) {
+  sendChildOrder(LIMIT, side, price, size, callback);
+}
+//指値注文
+function StopOrder(side, trigger_price, size, callback) {
+  sendParentOrder('SIMPLE', [{
+    product_code: PRODUCT_CODE,
+    condition_type: STOP,
+    side: side,
+    size: size,
+    trigger_price: trigger_price
+  }], callback);
+}
 
 
 
+//MarketOrder(SELL,0.001);
+//LimitOrder(SELL, 790000, 0.001);
+StopOrder(SELL, 500000, 0.001);
 /*getMarkets();
 getBoard();
 getTicker();
