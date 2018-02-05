@@ -117,11 +117,53 @@ function getTicker(callback) {
   "volume": 16819.26,
   "volume_by_product": 6819.26
 }
+timestamp: 時刻は UTC（協定世界時）で表されます。
+ltp: 最終取引価格
+volume: 24 時間の取引量
 */
 
+function getExecutions(callback) {
+
+  call('GET', '/getexecutions?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
+    console.log(JSON.parse(body)[0]);
+    //新しい順に配列に格納される
+  });
+  if (callback) {
+    callback();
+  }
+}
+/*約定履歴を取得
+[
+  {
+    "id": 39287,
+    "side": "BUY",
+    "price": 31690,
+    "size": 27.04,
+    "exec_date": "2015-07-08T02:43:34.823",
+    "buy_child_order_acceptance_id": "JRF20150707-200203-452209",
+    "sell_child_order_acceptance_id": "JRF20150708-024334-060234"
+  },
+  {
+    "id": 39286,
+    "side": "SELL",
+    "price": 33170,
+    "size": 0.36,
+    "exec_date": "2015-07-08T02:43:34.72",
+    "buy_child_order_acceptance_id": "JRF20150708-010230-400876",
+    "sell_child_order_acceptance_id": "JRF20150708-024334-197755"
+  }
+]
+side: この約定を発生させた注文（テイカー）の売買種別です。 板寄せによって約定した場合等、空文字列になることがあります。
+
+クエリパラメータ：
+count: 結果の個数を指定します。省略した場合の値は 100 です。
+before: このパラメータに指定した値より小さい id を持つデータを取得します。
+after: このパラメータに指定した値より大きい id を持つデータを取得します。
+*/
 
 
 
 getMarkets();
 getBoard();
 getTicker();
+getExecutions();
