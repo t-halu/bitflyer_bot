@@ -37,10 +37,10 @@ function call(method, path, body, callback) {
 //汎用的なAPI呼び出し関数
 
 function getMarkets(callback) {
-  call(GET, '/getmarkets', '', function(err, response, body) {
-    //console.log(JSON.parse(body)[1].product_code);
+  call(GET, '/getmarkets', '', function(err, response, payload) {
+    //console.log(JSON.parse(payload)[1].product_code);
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 
@@ -63,12 +63,12 @@ alias: 以下の呼出で product_code を指定するときに、代わりに�
 
 function getBoard(callback) {
 
-  call(GET, '/getboard?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
-    //console.log(JSON.parse(body).asks[0].price+':'+JSON.parse(body).asks[0].size);
+  call(GET, '/getboard?product_code=' + PRODUCT_CODE, '', function(err, response, payload) {
+    //console.log(JSON.parse(payload).asks[0].price+':'+JSON.parse(payload).asks[0].size);
     //売れる価格と量，配列値とともに増加
-    //console.log(JSON.parse(body).mid_price);
+    //console.log(JSON.parse(payload).mid_price);
     //最終取引価格
-    //console.log(JSON.parse(body).bids[0].price+':'+JSON.parse(body).bids[0].size);
+    //console.log(JSON.parse(payload).bids[0].price+':'+JSON.parse(payload).bids[0].size);
     //買える価格と量，配列値とともに減少
     if (callback) {
       callback(JSON.parse(body));
@@ -102,10 +102,10 @@ function getBoard(callback) {
 
 function getTicker(callback) {
 
-  call(GET, '/getticker?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
-    //console.log(JSON.parse(body).ltp);
+  call(GET, '/getticker?product_code=' + PRODUCT_CODE, '', function(err, response, payload) {
+    //console.log(JSON.parse(payload).ltp);
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 }
@@ -131,11 +131,11 @@ volume: 24 時間の取引量
 
 function getExecutions(callback) {
 
-  call(GET, '/getexecutions?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
-    //console.log(JSON.parse(body)[0]);
+  call(GET, '/getexecutions?product_code=' + PRODUCT_CODE, '', function(err, response, payload) {
+    //console.log(JSON.parse(payload)[0]);
     //新しい順に配列に格納される
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 
@@ -171,10 +171,10 @@ after: このパラメータに指定した値より大きい id を持つデー
 
 function getBoardstate(callback) {
 
-  call(GET, '/getboardstate?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
-    //console.log(JSON.parse(body).health);
+  call(GET, '/getboardstate?product_code=' + PRODUCT_CODE, '', function(err, response, payload) {
+    //console.log(JSON.parse(payload).health);
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 
@@ -213,10 +213,10 @@ special_quotation: Lightning Futures の SQ（清算値）
 
 function getHealth(callback) {
 
-  call(GET, '/gethealth?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
-    //console.log(JSON.parse(body).status);
+  call(GET, '/gethealth?product_code=' + PRODUCT_CODE, '', function(err, response, payload) {
+    //console.log(JSON.parse(payload).status);
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 }
@@ -228,10 +228,10 @@ function getHealth(callback) {
 
 function getBalance(callback) {
 
-  call(GET, '/me/getbalance', '', function(err, response, body) {
-    //console.log(JSON.parse(body));
+  call(GET, '/me/getbalance', '', function(err, response, payload) {
+    //console.log(JSON.parse(payload));
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 }
@@ -257,10 +257,10 @@ function getBalance(callback) {
 
 function getCollateral(callback) {
 
-  call(GET, '/me/getcollateral', '', function(err, response, body) {
-    console.log(JSON.parse(body));
+  call(GET, '/me/getcollateral', '', function(err, response, payload) {
+    //console.log(JSON.parse(payload));
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 }
@@ -279,10 +279,10 @@ keep_rate: 現在の証拠金維持率です。
 
 function getAddresses(callback) {
 
-  call(GET, '/me/getaddresses', '', function(err, response, body) {
-    //console.log(JSON.parse(body));
+  call(GET, '/me/getaddresses', '', function(err, response, payload) {
+    //console.log(JSON.parse(payload));
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 }
@@ -312,14 +312,14 @@ function sendChildorder(type, side, price, size, minute_to_expire, callback) {
     size: size,
     minute_to_expire: minute_to_expire
   });
-  call(POST, '/me/sendchildorder', body, function(err, response, body) {
-    //console.log(JSON.parse(body));
+  call(POST, '/me/sendchildorder', body, function(err, response, payload) {
+    //console.log(JSON.parse(payload));
     console.log("数量 :" + size)
     console.log("指値価格 :" + price)
     console.log("売り買い :" + side)
-    console.log("注文ID :" + body);
+    console.log("注文ID :" + payload);
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 }
@@ -351,16 +351,18 @@ getHealth();
 getBalance();
 getCollateral();
 getAddresses();*/
-sendChildorder(MARKET, SELL, null, 0.001);
+sendChildorder(MARKET, SELL, null, 0.001, function(payload) {
+  console.log(payload);
+});
 
 //即時関数でなんかしたいとき
 /*(function() {
   var params = [];
-  getHealth(function(body) {
+  getHealth(function(payload) {
 
-    params['health'] = body.status;
-    getBoard(function(body) {
-      params['mid_price'] = body.mid_price;
+    params['health'] = payload.status;
+    getBoard(function(payload) {
+      params['mid_price'] = payload.mid_price;
       console.log(params);
     });
   });
