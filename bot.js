@@ -218,20 +218,104 @@ function getHealth(callback) {
 }
 */
 
-getMarkets();
+function getBalance(callback) {
+
+  call('GET', '/me/getbalance', '', function(err, response, body) {
+    //console.log(JSON.parse(body));
+    if (callback) {
+      callback(JSON.parse(body));
+    }
+  });
+}
+/*資産残高取得
+[
+  {
+    "currency_code": "JPY",
+    "amount": 1024078,
+    "available": 508000
+  },
+  {
+    "currency_code": "BTC",
+    "amount": 10.24,
+    "available": 4.12
+  },
+  {
+    "currency_code": "ETH",
+    "amount": 20.48,
+    "available": 16.38
+  }
+]
+*/
+
+function getCollateral(callback) {
+
+  call('GET', '/me/getcollateral', '', function(err, response, body) {
+    console.log(JSON.parse(body));
+    if (callback) {
+      callback(JSON.parse(body));
+    }
+  });
+}
+/*証拠金残高取得
+{
+  "collateral": 100000,
+  "open_position_pnl": -715,
+  "require_collateral": 19857,
+  "keep_rate": 5.000
+}
+collateral: 預け入れた証拠金の評価額（円）です。
+open_position_pnl: 建玉の評価損益（円）です。
+require_collateral: 現在の必要証拠金（円）です。
+keep_rate: 現在の証拠金維持率です。
+*/
+
+function getAddresses(callback) {
+
+  call('GET', '/me/getaddresses', '', function(err, response, body) {
+    //console.log(JSON.parse(body));
+    if (callback) {
+      callback(JSON.parse(body));
+    }
+  });
+}
+/*預入用アドレス取得
+[
+  {
+    "type": "NORMAL",
+    "currency_code": "BTC",
+    "address": "3AYrDq8zhF82NJ2ZaLwBMPmaNziaKPaxa7"
+  },
+  {
+    "type": "NORMAL",
+    "currency_code": "ETH",
+    "address": "0x7fbB2CC24a3C0cd3789a44e9073381Ca6470853f"
+  }
+]
+type: 通常の預入用アドレスは "NORMAL" となります。
+currency_code: ビットコイン預入用アドレスは "BTC", イーサ預入用アドレスの場合は "ETH"
+*/
+
+/*getMarkets();
 getBoard();
 getTicker();
 getExecutions();
 getBoardstate();
 getHealth();
+getBalance();
+getCollateral();
+getAddresses();*/
 
-(function(){
-var params = [];
-getHealth(function(body) {
 
-  params['health'] = body.status;
-  getBoard(function(body) {
-    params['mid_price'] = body.mid_price;
-    console.log(params);
+//即時関数でなんかしたいとき
+/*(function() {
+  var params = [];
+  getHealth(function(body) {
+
+    params['health'] = body.status;
+    getBoard(function(body) {
+      params['mid_price'] = body.mid_price;
+      console.log(params);
+    });
   });
-});}());
+}())
+*/
