@@ -32,7 +32,7 @@ function getMarkets(callback) {
   call('GET', '/getmarkets', '', function(err, response, body) {
     //console.log(JSON.parse(body)[1].product_code);
     if (callback) {
-      callback(body);
+      callback(JSON.parse(body));
     }
   });
 
@@ -63,7 +63,7 @@ function getBoard(callback) {
     //console.log(JSON.parse(body).bids[0].price+':'+JSON.parse(body).bids[0].size);
     //買える価格と量，配列値とともに減少
     if (callback) {
-      callback(body);
+      callback(JSON.parse(body));
     }
   });
 }
@@ -97,7 +97,7 @@ function getTicker(callback) {
   call('GET', '/getticker?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body).ltp);
     if (callback) {
-      callback(body);
+      callback(JSON.parse(body));
     }
   });
 }
@@ -127,7 +127,7 @@ function getExecutions(callback) {
     //console.log(JSON.parse(body)[0]);
     //新しい順に配列に格納される
     if (callback) {
-      callback(body);
+      callback(JSON.parse(body));
     }
   });
 
@@ -166,7 +166,7 @@ function getBoardstate(callback) {
   call('GET', '/getboardstate?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body).health);
     if (callback) {
-      callback(body);
+      callback(JSON.parse(body));
     }
   });
 
@@ -208,7 +208,7 @@ function getHealth(callback) {
   call('GET', '/gethealth?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
     //console.log(JSON.parse(body).status);
     if (callback) {
-      callback(body);
+      callback(JSON.parse(body));
     }
   });
 }
