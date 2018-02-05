@@ -202,9 +202,26 @@ data: 板の状態について、付加情報を提供します。
 special_quotation: Lightning Futures の SQ（清算値）
 */
 
+function getHealth(callback) {
+
+  call('GET', '/gethealth?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
+    console.log(JSON.parse(body).status);
+  });
+  if (callback) {
+    callback();
+  }
+}
+/*取引所の状態取得。boardstateより速い
+{
+  "status": "NORMAL"
+}
+*/
+
+
 
 getMarkets();
 getBoard();
 getTicker();
 getExecutions();
 getBoardstate();
+getHealth();
