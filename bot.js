@@ -224,3 +224,14 @@ getTicker();
 getExecutions();
 getBoardstate();
 getHealth();
+
+(function(){
+var params = [];
+getHealth(function(body) {
+
+  params['health'] = body.status;
+  getBoard(function(body) {
+    params['mid_price'] = body.mid_price;
+    console.log(params);
+  });
+});}());
