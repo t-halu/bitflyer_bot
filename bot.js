@@ -125,7 +125,7 @@ volume: 24 時間の取引量
 function getExecutions(callback) {
 
   call('GET', '/getexecutions?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
-    console.log(JSON.parse(body)[0]);
+    //console.log(JSON.parse(body)[0]);
     //新しい順に配列に格納される
   });
   if (callback) {
@@ -161,9 +161,50 @@ before: このパラメータに指定した値より小さい id を持つデ�
 after: このパラメータに指定した値より大きい id を持つデータを取得します。
 */
 
+function getBoardstate(callback) {
+
+  call('GET', '/getboardstate?product_code=' + PRODUCT_CODE, '', function(err, response, body) {
+    console.log(JSON.parse(body).health);
+  });
+  if (callback) {
+    callback();
+  }
+}
+/*板の状態を取得
+{
+  "health": "NORMAL",
+  "state": "RUNNING",
+}
+
+{
+  "health": "NORMAL",
+  "state": "MATURED",
+  "data": {
+    "special_quotation": 410897
+  }
+}
+health: 取引所の稼動状態です。以下のいずれかの値をとります。
+NORMAL: 取引所は稼動しています。
+BUSY: 取引所に負荷がかかっている状態です。
+VERY BUSY: 取引所の負荷が大きい状態です。
+SUPER BUSY: 負荷が非常に大きい状態です。発注は失敗するか、遅れて処理される可能性があります。
+NO ORDER: 発注が受付できない状態です。
+STOP: 取引所は停止しています。発注は受付されません。
+state: 板の状態です。以下の値をとります。
+RUNNING: 通常稼働中
+CLOSED: 取引停止中
+STARTING: 再起動中
+PREOPEN: 板寄せ中
+CIRCUIT BREAK: サーキットブレイク発動中
+AWAITING SQ: Lightning Futures の取引終了後 SQ（清算値）の確定前
+MATURED: Lightning Futures の満期に到達
+data: 板の状態について、付加情報を提供します。
+special_quotation: Lightning Futures の SQ（清算値）
+*/
 
 
 getMarkets();
 getBoard();
 getTicker();
 getExecutions();
+getBoardstate();
