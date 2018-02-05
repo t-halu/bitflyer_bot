@@ -303,7 +303,7 @@ type: 通常の預入用アドレスは "NORMAL" となります。
 currency_code: ビットコイン預入用アドレスは "BTC", イーサ預入用アドレスの場合は "ETH"
 */
 
-function sendChildorder(type, side, price, size, minute_to_expire, callback) {
+function sendChildOrder(type, side, price, size, minute_to_expire, callback) {
   var body = JSON.stringify({
     product_code: PRODUCT_CODE,
     child_order_type: type,
@@ -337,7 +337,20 @@ child_order_acceptance_id: API の受付 ID です。注文を指定する際に
  注文をキャンセルする, 約定の一覧を取得 の項もご確認ください。
 */
 
+function sendParentOrder(order_method, minute_to_expire, order_index, callback) {
+  var body = JSON.stringify({
 
+    order_method: order_method,
+    minute_to_expire: minute_to_expire,
+    parameters: order_index
+  });
+  call(POST, '/me/sendparentorder', body, function(err, response, payload) {
+    //console.log(JSON.parse(payload));
+    if (callback) {
+      callback(JSON.parse(payload));
+    }
+  });
+}
 /*親注文をする
 bodyパラメータ
 order_method: 注文方法です。以下の値のいずれかを指定してください。省略した場合の値は "SIMPLE" です。
@@ -373,9 +386,9 @@ offset: トレーリング・ストップ注文のトレール幅を、正の整
 }
 */
 
-function CancelAllChildorders(callback) {
-  body=JSON.stringify({
-    product_code:PRODUCT_CODE
+function CancelAllChildOrders(callback) {
+  body = JSON.stringify({
+    product_code: PRODUCT_CODE
   });
   call(POST, '/me/cancelallchildorders', body, function(err, response, payload) {
     //console.log(JSON.parse(payload));
@@ -394,11 +407,32 @@ getBoardstate();
 getHealth();
 getBalance();
 getCollateral();
-getAddresses();*/
-sendChildorder(LIMIT, BUY, 600000, 0.001, null, function(payload) {
+getAddresses();
+sendChildOrder(LIMIT, BUY, 600000, 0.001, null, function(payload) {
   console.log(payload.child_order_acceptance_id);
+});*/
+sendParentOrder('IFDOCO', null, [{
+  product_code: PRODUCT_CODE,
+  condition_type: LIMIT,
+  side: BUY,
+  size: 0.002,
+  price: 600000
+}, {
+  product_code: PRODUCT_CODE,
+  condition_type: LIMIT,
+  side: SELL,
+  size: 0.001,
+  price: 700000
+}, {
+  product_code: PRODUCT_CODE,
+  condition_type: STOP,
+  side: SELL,
+  size: 0.001,
+  trigger_price: 500000
+}], function(payload) {
+  console.log(payload.parent_order_acceptance_id);
 });
-CancelAllChildorders();
+//CancelAllChildOrders();
 
 //即時関数でなんかしたいとき
 /*(function() {
