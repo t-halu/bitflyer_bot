@@ -342,6 +342,7 @@ function sendParentOrder(order_method, order_index, callback) {
     order_method: order_method,
     parameters: order_index
   });
+  console.log(body);
   call(POST, '/me/sendparentorder', body, function(err, response, payload) {
     //console.log(JSON.parse(payload));
     if (callback) {
@@ -460,65 +461,101 @@ function StopOrder(side, trigger_price, size, callback) {
   }], callback);
 }
 //STOP注文
-function StopLimitOrder(side, trigger_price,price, size, callback) {
+function StopLimitOrder(side, trigger_price, price, size, callback) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
     condition_type: STOP_LIMIT,
     side: side,
     size: size,
-    price:price,
+    price: price,
     trigger_price: trigger_price
   }], callback);
 }
 //STOPLIMIT注文
-function TrailOrder(side, size,offset, callback) {
+function TrailOrder(side, size, offset, callback) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
     condition_type: TRAIL,
     side: side,
     size: size,
-    offset:offset
+    offset: offset
   }], callback);
 }
 //TRAIL注文
-function IfdOrder(order_index,callback){
-  order_index[0]['product_code']=PRODUCT_CODE;
-  order_index[1]['product_code']=PRODUCT_CODE;
-  //console.log(order_index);
+function IfdOrder(order1, order2, callback) {
+  var order_index = [];
+  order_index[0] = order1;
+  order_index[1] = order2;
   sendParentOrder('IFD', order_index, callback);
-  }
+}
 //IFD注文
-function OcoOrder(order_index,callback){
-  order_index[0]['product_code']=PRODUCT_CODE;
-  order_index[1]['product_code']=PRODUCT_CODE;
-  //console.log(order_index);
+function OcoOrder(order1, order2, callback) {
+  var order_index = [];
+  order_index[0] = order1;
+  order_index[1] = order2;
   sendParentOrder('OCO', order_index, callback);
+}
+//OCO注文
+function IfdOcoOrder(order1, order2, order3, callback) {
+  var order_index = [];
+  order_index[0] = order1;
+  order_index[1] = order2;
+  order_index[2] = order3;
+  sendParentOrder('IFDOCO', order_index, callback);
+}
+//IFDOCO注文
+function MarketOrderParam(side, size) {
+  return {
+    product_code: PRODUCT_CODE,
+    condition_type: MARKET,
+    side: side,
+    size: size
   }
+}
+//成行注文のbody作成
+function LimitOrderParam(side, price, size) {
+  return {
+    product_code: PRODUCT_CODE,
+    condition_type: LIMIT,
+    side: side,
+    size: size,
+    price: price
+  }
+}
+//指値注文のbody作成
+function StopOrderParam(side, trigger_price, size) {
+  return {
+    product_code: PRODUCT_CODE,
+    condition_type: STOP,
+    side: side,
+    size: size,
+    trigger_price: trigger_price
+  }
+}
+//STOP注文のbody作成
+function StopLimitOrderParam(side, trigger_price, price, size) {
+  return {
+    product_code: PRODUCT_CODE,
+    condition_type: STOP_LIMIT,
+    side: side,
+    size: size,
+    trigger_price: trigger_price,
+    price: price
+  }
+}
+//StopLimit注文のbody作成
+function TrailOrderParam(side, size, offset) {
+  return {
+    product_code: PRODUCT_CODE,
+    condition_type: TRAIL,
+    side: side,
+    size: size,
+    offset: offset
+  }
+}
+//成行注文のbody作成
 
-  function IfdOcoOrder(order_index,callback){
-    order_index[0]['product_code']=PRODUCT_CODE;
-    order_index[1]['product_code']=PRODUCT_CODE;
-    order_index[2]['product_code']=PRODUCT_CODE;
-    //console.log(order_index);
-    sendParentOrder('IFDOCO', order_index, callback);
-    }
-
-IfdOcoOrder( [{
-  condition_type: LIMIT,
-  side: BUY,
-  size: 0.002,
-  price: 500000
-}, {
-  condition_type: LIMIT,
-  side: BUY,
-  size: 0.001,
-  price: 400000
-}, {
-  condition_type: LIMIT,
-  side: BUY,
-  size: 0.001,
-  price: 410000
-}], function(payload) {
+IfdOcoOrder(LimitOrderParam(SELL, 800000, 0.001), StopLimitOrderParam(BUY, 550000, 560000, 0.001), TrailOrderParam(SELL, 0.001, 300), function(payload) {
   console.log(payload.parent_order_acceptance_id);
 });
 
