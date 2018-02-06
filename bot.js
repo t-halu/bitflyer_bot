@@ -317,7 +317,7 @@ function sendChildOrder(type, side, price, size, callback, minute_to_expire) {
     if (payload.status == 'NORMAL') {
       call(POST, '/me/sendchildorder', body, function(err, response, payload) {
         //console.log(JSON.parse(payload));
-        //console.log("注文ID :" + JSON.parse(payload).child_order_acceptance_id)
+        console.log("注文ID :" + JSON.parse(payload).child_order_acceptance_id)
         if (callback) {
           callback(JSON.parse(payload));
         }
@@ -355,7 +355,7 @@ function sendParentOrder(order_method, order_index, callback, minute_to_expire) 
     if (payload.status == 'NORMAL') {
       call(POST, '/me/sendparentorder', body, function(err, response, payload) {
         //console.log(JSON.parse(payload));
-        //  console.log("注文ID :" + JSON.parse(payload).parent_order_acceptance_id)
+        console.log("注文ID :" + JSON.parse(payload).parent_order_acceptance_id)
         if (callback) {
           callback(JSON.parse(payload));
         };
@@ -506,7 +506,7 @@ function IfdOrder(order1, order2, callback, minute_to_expire) {
   var order_index = [];
   order_index[0] = order1;
   order_index[1] = order2;
-  sendParentOrder('IFD', order_index, callback,minute_to_expire);
+  sendParentOrder('IFD', order_index, callback, minute_to_expire);
 }
 //IFD注文
 
@@ -514,7 +514,7 @@ function OcoOrder(order1, order2, callback, minute_to_expire) {
   var order_index = [];
   order_index[0] = order1;
   order_index[1] = order2;
-  sendParentOrder('OCO', order_index, callback,minute_to_expire);
+  sendParentOrder('OCO', order_index, callback, minute_to_expire);
 }
 //OCO注文
 
@@ -523,7 +523,7 @@ function IfdOcoOrder(order1, order2, order3, callback, minute_to_expire) {
   order_index[0] = order1;
   order_index[1] = order2;
   order_index[2] = order3;
-  sendParentOrder('IFDOCO', order_index, callback,minute_to_expire);
+  sendParentOrder('IFDOCO', order_index, callback, minute_to_expire);
 }
 //IFDOCO注文
 
@@ -620,29 +620,35 @@ function TrailOrderParam(side, size, offset) {
 
 
 (function() {
-  setInterval(function() {
-    var params = [];
-    getBoard(function(payload) {
-      params['before_price'] = payload.mid_price;
-    });
-    setTimeout(function() {
+    setInterval(function() {
+      var params = [];
       getBoard(function(payload) {
-        params['after_price'] = payload.mid_price;
-        params['spread'] = payload.asks[0].price - payload.bids[0].price;
-        var offset = params.after_price - params.before_price;
-        var side1 = (offset > 0) ? BUY : SELL;
-        var side2 = (offset > 0) ? SELL : BUY;
-        console.log("価格変化:" + offset);
-        console.log("スプレッド:" + params.spread);
-        console.log("指値注文:" + side1);
-        console.log("STOPLIMIT注文:" + side2);
-        var size = 0.001;
-        if(params.spread<Math.abs(offset)){
-          IfdOrder(LimitOrderParam(side1, payload.mid_price +offset/4, size), StopLimitOrderParam(side2, payload.mid_price, payload.mid_price+offset/2, size), null, 1);}
+        params['before_price'] = payload.mid_price;
       });
-    }, 1000);
-  }, 2000)
-}());
+      setTimeout(function() {
+        getBoard(function(payload) {
+          params['after_price'] = payload.mid_price;
+          params['spread'] = payload.asks[0].price - payload.bids[0].price;
+          var offset = params.after_price - params.before_price;
+          var side1 = (offset > 0) ? BUY : SELL;
+          var side2 = (offset > 0) ? SELL : BUY;
+          console.log("価格変化:" + offset);
+          console.log("スプレッド:" + params.spread);
+          console.log("指値注文:" + side1);
+          console.log("STOPLIMIT注文:" + side2);
+          var size = 0.001;
+          IfdOrder(LimitOrderParam(side1, payload.mid_price + offset / 4, size), StopLimitOrderParam(side2, payload.mid_price, payload.mid_price + offset / 2, size), null, 1);
+          /*if (params.spread/2 < Math.abs(offset)) {
+            IfdOrder(LimitOrderParam(side1, payload.mid_price + offset / 4, size), StopLimitOrderParam(side2, payload.mid_price, payload.mid_price + offset / 2, size), null, 1);
+          } else {
+            console.log("注文しない")
+          };*/
+
+        });
+      }, 1000);
+    }, 2000);
+  }
+  ());
 
 
 
