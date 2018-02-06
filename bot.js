@@ -304,13 +304,14 @@ type: 通常の預入用アドレスは "NORMAL" となります。
 currency_code: ビットコイン預入用アドレスは "BTC", イーサ預入用アドレスの場合は "ETH"
 */
 
-function sendChildOrder(type, side, price, size, callback) {
+function sendChildOrder(type, side, price, size, callback, minute_to_expire) {
   var body = JSON.stringify({
     product_code: PRODUCT_CODE,
     child_order_type: type,
     side: side,
     price: price,
     size: size,
+    minute_to_expire: minute_to_expire
   });
   getHealth(function(payload) {
     if (payload.status == 'NORMAL') {
@@ -344,10 +345,11 @@ child_order_acceptance_id: API の受付 ID です。注文を指定する際に
  注文をキャンセルする, 約定の一覧を取得 の項もご確認ください。
 */
 
-function sendParentOrder(order_method, order_index, callback) {
+function sendParentOrder(order_method, order_index, callback, minute_to_expire) {
   var body = JSON.stringify({
     order_method: order_method,
-    parameters: order_index
+    parameters: order_index,
+    minute_to_expire: minute_to_expire
   });
   getHealth(function(payload) {
     if (payload.status == 'NORMAL') {
@@ -456,17 +458,17 @@ change: 証拠金の変動額です。
 amount: 変動後の証拠金の残高です。
 */
 
-function MarketOrder(side, size, callback) {
+function MarketOrder(side, size, callback, minute_to_expire) {
   sendChildOrder(MARKET, side, null, size, callback);
 }
 //成行注文
 
-function LimitOrder(side, price, size, callback) {
+function LimitOrder(side, price, size, callback, minute_to_expire) {
   sendChildOrder(LIMIT, side, price, size, callback);
 }
 //指値注文
 
-function StopOrder(side, trigger_price, size, callback) {
+function StopOrder(side, trigger_price, size, callback, minute_to_expire) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
     condition_type: STOP,
@@ -477,7 +479,7 @@ function StopOrder(side, trigger_price, size, callback) {
 }
 //STOP注文
 
-function StopLimitOrder(side, trigger_price, price, size, callback) {
+function StopLimitOrder(side, trigger_price, price, size, callback, minute_to_expire) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
     condition_type: STOP_LIMIT,
@@ -489,7 +491,7 @@ function StopLimitOrder(side, trigger_price, price, size, callback) {
 }
 //STOPLIMIT注文
 
-function TrailOrder(side, size, offset, callback) {
+function TrailOrder(side, size, offset, callback, minute_to_expire) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
     condition_type: TRAIL,
@@ -500,28 +502,28 @@ function TrailOrder(side, size, offset, callback) {
 }
 //TRAIL注文
 
-function IfdOrder(order1, order2, callback) {
+function IfdOrder(order1, order2, callback, minute_to_expire) {
   var order_index = [];
   order_index[0] = order1;
   order_index[1] = order2;
-  sendParentOrder('IFD', order_index, callback);
+  sendParentOrder('IFD', order_index, callback,minute_to_expire);
 }
 //IFD注文
 
-function OcoOrder(order1, order2, callback) {
+function OcoOrder(order1, order2, callback, minute_to_expire) {
   var order_index = [];
   order_index[0] = order1;
   order_index[1] = order2;
-  sendParentOrder('OCO', order_index, callback);
+  sendParentOrder('OCO', order_index, callback,minute_to_expire);
 }
 //OCO注文
 
-function IfdOcoOrder(order1, order2, order3, callback) {
+function IfdOcoOrder(order1, order2, order3, callback, minute_to_expire) {
   var order_index = [];
   order_index[0] = order1;
   order_index[1] = order2;
   order_index[2] = order3;
-  sendParentOrder('IFDOCO', order_index, callback);
+  sendParentOrder('IFDOCO', order_index, callback,minute_to_expire);
 }
 //IFDOCO注文
 
@@ -588,6 +590,35 @@ function TrailOrderParam(side, size, offset) {
 減少→IFDで成り行き売り＋減少分でtrail売り
 */
 
+/*(function() {
+  setInterval(function() {
+    var params = [];
+    getBoard(function(payload) {
+      params['before_price'] = payload.mid_price;
+    });
+    setTimeout(function() {
+      getBoard(function(payload) {
+        params['after_price'] = payload.mid_price;
+        params['spread']=payload.asks[0].price-payload.bids[0].price;
+        var offset = params.after_price - params.before_price;
+        var marketside = (offset > 0) ? BUY : SELL;
+        var trailside = (offset > 0) ? SELL : BUY;
+        console.log("価格変化:" + offset);
+        console.log("成行注文:" + marketside);
+        console.log("TRAIL注文:" + trailside);
+        offset = Math.abs(offset);
+        var size = 0.001;
+        if (offset > params.spread) {
+          IfdOrder(MarketOrderParam(marketside, size), TrailOrderParam(trailside, size, offset/2));
+        } else {
+          console.log("注文せず")
+        };
+      });
+    }, 2000);
+  }, 1000)
+}());*/
+
+
 (function() {
   setInterval(function() {
     var params = [];
@@ -597,23 +628,21 @@ function TrailOrderParam(side, size, offset) {
     setTimeout(function() {
       getBoard(function(payload) {
         params['after_price'] = payload.mid_price;
+        params['spread'] = payload.asks[0].price - payload.bids[0].price;
         var offset = params.after_price - params.before_price;
-        var marketside = (offset > 0) ? BUY : SELL;
-        var trailside = (offset > 0) ? SELL : BUY;
+        var side1 = (offset > 0) ? BUY : SELL;
+        var side2 = (offset > 0) ? SELL : BUY;
         console.log("価格変化:" + offset);
-        console.log("成行注文:" + marketside);
-        console.log("TRAIL注文:" + trailside);
-        offset = Math.abs(offset) / 2;
+        console.log("スプレッド:" + params.spread);
+        console.log("指値注文:" + side1);
+        console.log("STOPLIMIT注文:" + side2);
         var size = 0.001;
-        if (offset > 50) {
-          IfdOrder(MarketOrderParam(marketside, size), TrailOrderParam(trailside, size, offset));
-        } else {
-          console.log("注文せず")
-        };
+        if(params.spread<Math.abs(offset)){
+          IfdOrder(LimitOrderParam(side1, payload.mid_price +offset/4, size), StopLimitOrderParam(side2, payload.mid_price, payload.mid_price+offset/2, size), null, 1);}
       });
-    }, 2000);
-  }, 1000)
-}())
+    }, 1000);
+  }, 2000)
+}());
 
 
 
