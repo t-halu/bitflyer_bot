@@ -484,24 +484,44 @@ function TrailOrder(side, size,offset, callback) {
 function IfdOrder(order_index,callback){
   order_index[0]['product_code']=PRODUCT_CODE;
   order_index[1]['product_code']=PRODUCT_CODE;
-  console.log(order_index);
+  //console.log(order_index);
   sendParentOrder('IFD', order_index, callback);
   }
 //IFD注文
+function OcoOrder(order_index,callback){
+  order_index[0]['product_code']=PRODUCT_CODE;
+  order_index[1]['product_code']=PRODUCT_CODE;
+  //console.log(order_index);
+  sendParentOrder('OCO', order_index, callback);
+  }
 
-IfdOrder( [{
+  function IfdOcoOrder(order_index,callback){
+    order_index[0]['product_code']=PRODUCT_CODE;
+    order_index[1]['product_code']=PRODUCT_CODE;
+    order_index[2]['product_code']=PRODUCT_CODE;
+    //console.log(order_index);
+    sendParentOrder('IFDOCO', order_index, callback);
+    }
+
+IfdOcoOrder( [{
   condition_type: LIMIT,
   side: BUY,
   size: 0.002,
-  price: 600000
+  price: 500000
 }, {
   condition_type: LIMIT,
-  side: SELL,
+  side: BUY,
   size: 0.001,
-  price: 700000
+  price: 400000
+}, {
+  condition_type: LIMIT,
+  side: BUY,
+  size: 0.001,
+  price: 410000
 }], function(payload) {
   console.log(payload.parent_order_acceptance_id);
 });
+
 
 
 //MarketOrder(SELL,0.001);
