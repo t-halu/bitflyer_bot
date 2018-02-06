@@ -72,7 +72,7 @@ function getBoard(callback) {
     //console.log(JSON.parse(payload).bids[0].price+':'+JSON.parse(payload).bids[0].size);
     //買える価格と量，配列値とともに減少
     if (callback) {
-      callback(JSON.parse(body));
+      callback(JSON.parse(payload));
     }
   });
 }
@@ -320,10 +320,11 @@ function sendChildOrder(type, side, price, size, callback) {
           callback(JSON.parse(payload));
         }
       });
+    } else {
+      console.log("server is busy");
     };
   });
 }
-
 /*子注文をする（成行と指値のみ）
 bodyパラメータ
 
@@ -355,6 +356,8 @@ function sendParentOrder(order_method, order_index, callback) {
           callback(JSON.parse(payload));
         };
       });
+    } else {
+      console.log("server is busy");;
     };
   });
 }
@@ -575,51 +578,33 @@ function TrailOrderParam(side, size, offset) {
 }
 //成行注文のbody作成
 
-/*IfdOcoOrder(LimitOrderParam(SELL, 800000, 0.001), StopLimitOrderParam(BUY, 550000, 560000, 0.001), TrailOrderParam(SELL, 0.001, 300), function(payload) {
-  console.log(payload.parent_order_acceptance_id);
-});*/
+/*---------------アルゴリズム---------------
+あるタイミングで値段を取得
+1秒後にもう一度値段を取得
+差分を取る．
+増加→IFDで成り行き買い＋増分でtrail売り
+減少→IFDで成り行き売り＋減少分でtrail売り
+*/
+(function() {
+  var params = [];
+  getBoard(function(payload) {
+    params['before_price'] = payload.mid_price;
+  });
+  setTimeout(function() {
+    getBoard(function(payload) {
+      params['after_price'] = payload.mid_price;
+      var offset = params.after_price - params.before_price;
+      var marketside = (offset > 0) ? BUY : SELL;
+      var trailside = (offset > 0) ? SELL : BUY;
+      offset = Math.abs(offset);
+      var size = 0.001;
+      IfdOrder(MarketOrderParam(marketside, size), TrailOrderParam(trailside, size, offset));
+    });
+  }, 1000);
+}())
 
-MarketOrder(SELL,0.001);
 
 
-
-//MarketOrder(SELL,0.001);
-//LimitOrder(SELL, 790000, 0.001);
-//StopLimitOrder(SELL, 500000,490000, 0.001);
-/*getMarkets();
-getBoard();
-getTicker();
-getExecutions();
-getBoardstate();
-getHealth();
-getBalance();
-getCollateral();
-getAddresses();
-sendChildOrder(LIMIT, BUY, 600000, 0.001, function(payload) {
-  console.log(payload.child_order_acceptance_id);
-});
-sendParentOrder('IFDOCO', [{
-  product_code: PRODUCT_CODE,
-  condition_type: LIMIT,
-  side: BUY,
-  size: 0.002,
-  price: 600000
-}, {
-  product_code: PRODUCT_CODE,
-  condition_type: LIMIT,
-  side: SELL,
-  size: 0.001,
-  price: 700000
-}, {
-  product_code: PRODUCT_CODE,
-  condition_type: STOP,
-  side: SELL,
-  size: 0.001,
-  trigger_price: 500000
-}], function(payload) {
-  console.log(payload.parent_order_acceptance_id);
-});
-CancelAllChildOrders();*/
 
 //即時関数でなんかしたいとき
 /*(function() {
