@@ -312,13 +312,18 @@ function sendChildOrder(type, side, price, size, callback) {
     price: price,
     size: size,
   });
-  call(POST, '/me/sendchildorder', body, function(err, response, payload) {
-    //console.log(JSON.parse(payload));
-    if (callback) {
-      callback(JSON.parse(payload));
-    }
+  getHealth(function(payload) {
+    if (payload.status == 'NORMAL') {
+      call(POST, '/me/sendchildorder', body, function(err, response, payload) {
+        //console.log(JSON.parse(payload));
+        if (callback) {
+          callback(JSON.parse(payload));
+        }
+      });
+    };
   });
 }
+
 /*子注文をする（成行と指値のみ）
 bodyパラメータ
 
@@ -342,12 +347,15 @@ function sendParentOrder(order_method, order_index, callback) {
     order_method: order_method,
     parameters: order_index
   });
-  console.log(body);
-  call(POST, '/me/sendparentorder', body, function(err, response, payload) {
-    //console.log(JSON.parse(payload));
-    if (callback) {
-      callback(JSON.parse(payload));
-    }
+  getHealth(function(payload) {
+    if (payload.status == 'NORMAL') {
+      call(POST, '/me/sendparentorder', body, function(err, response, payload) {
+        //console.log(JSON.parse(payload));
+        if (callback) {
+          callback(JSON.parse(payload));
+        };
+      });
+    };
   });
 }
 /*親注文をする
@@ -447,10 +455,12 @@ function MarketOrder(side, size, callback) {
   sendChildOrder(MARKET, side, null, size, callback);
 }
 //成行注文
+
 function LimitOrder(side, price, size, callback) {
   sendChildOrder(LIMIT, side, price, size, callback);
 }
 //指値注文
+
 function StopOrder(side, trigger_price, size, callback) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
@@ -461,6 +471,7 @@ function StopOrder(side, trigger_price, size, callback) {
   }], callback);
 }
 //STOP注文
+
 function StopLimitOrder(side, trigger_price, price, size, callback) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
@@ -472,6 +483,7 @@ function StopLimitOrder(side, trigger_price, price, size, callback) {
   }], callback);
 }
 //STOPLIMIT注文
+
 function TrailOrder(side, size, offset, callback) {
   sendParentOrder('SIMPLE', [{
     product_code: PRODUCT_CODE,
@@ -482,6 +494,7 @@ function TrailOrder(side, size, offset, callback) {
   }], callback);
 }
 //TRAIL注文
+
 function IfdOrder(order1, order2, callback) {
   var order_index = [];
   order_index[0] = order1;
@@ -489,6 +502,7 @@ function IfdOrder(order1, order2, callback) {
   sendParentOrder('IFD', order_index, callback);
 }
 //IFD注文
+
 function OcoOrder(order1, order2, callback) {
   var order_index = [];
   order_index[0] = order1;
@@ -496,6 +510,7 @@ function OcoOrder(order1, order2, callback) {
   sendParentOrder('OCO', order_index, callback);
 }
 //OCO注文
+
 function IfdOcoOrder(order1, order2, order3, callback) {
   var order_index = [];
   order_index[0] = order1;
@@ -504,6 +519,7 @@ function IfdOcoOrder(order1, order2, order3, callback) {
   sendParentOrder('IFDOCO', order_index, callback);
 }
 //IFDOCO注文
+
 function MarketOrderParam(side, size) {
   return {
     product_code: PRODUCT_CODE,
@@ -513,6 +529,7 @@ function MarketOrderParam(side, size) {
   }
 }
 //成行注文のbody作成
+
 function LimitOrderParam(side, price, size) {
   return {
     product_code: PRODUCT_CODE,
@@ -523,6 +540,7 @@ function LimitOrderParam(side, price, size) {
   }
 }
 //指値注文のbody作成
+
 function StopOrderParam(side, trigger_price, size) {
   return {
     product_code: PRODUCT_CODE,
@@ -533,6 +551,7 @@ function StopOrderParam(side, trigger_price, size) {
   }
 }
 //STOP注文のbody作成
+
 function StopLimitOrderParam(side, trigger_price, price, size) {
   return {
     product_code: PRODUCT_CODE,
@@ -544,6 +563,7 @@ function StopLimitOrderParam(side, trigger_price, price, size) {
   }
 }
 //StopLimit注文のbody作成
+
 function TrailOrderParam(side, size, offset) {
   return {
     product_code: PRODUCT_CODE,
@@ -555,9 +575,11 @@ function TrailOrderParam(side, size, offset) {
 }
 //成行注文のbody作成
 
-IfdOcoOrder(LimitOrderParam(SELL, 800000, 0.001), StopLimitOrderParam(BUY, 550000, 560000, 0.001), TrailOrderParam(SELL, 0.001, 300), function(payload) {
+/*IfdOcoOrder(LimitOrderParam(SELL, 800000, 0.001), StopLimitOrderParam(BUY, 550000, 560000, 0.001), TrailOrderParam(SELL, 0.001, 300), function(payload) {
   console.log(payload.parent_order_acceptance_id);
-});
+});*/
+
+MarketOrder(SELL,0.001);
 
 
 
