@@ -316,6 +316,7 @@ function sendChildOrder(type, side, price, size, callback) {
     if (payload.status == 'NORMAL') {
       call(POST, '/me/sendchildorder', body, function(err, response, payload) {
         //console.log(JSON.parse(payload));
+        //console.log("注文ID :" + JSON.parse(payload).child_order_acceptance_id)
         if (callback) {
           callback(JSON.parse(payload));
         }
@@ -352,6 +353,7 @@ function sendParentOrder(order_method, order_index, callback) {
     if (payload.status == 'NORMAL') {
       call(POST, '/me/sendparentorder', body, function(err, response, payload) {
         //console.log(JSON.parse(payload));
+        //  console.log("注文ID :" + JSON.parse(payload).parent_order_acceptance_id)
         if (callback) {
           callback(JSON.parse(payload));
         };
@@ -585,22 +587,32 @@ function TrailOrderParam(side, size, offset) {
 増加→IFDで成り行き買い＋増分でtrail売り
 減少→IFDで成り行き売り＋減少分でtrail売り
 */
+
 (function() {
-  var params = [];
-  getBoard(function(payload) {
-    params['before_price'] = payload.mid_price;
-  });
-  setTimeout(function() {
+  setInterval(function() {
+    var params = [];
     getBoard(function(payload) {
-      params['after_price'] = payload.mid_price;
-      var offset = params.after_price - params.before_price;
-      var marketside = (offset > 0) ? BUY : SELL;
-      var trailside = (offset > 0) ? SELL : BUY;
-      offset = Math.abs(offset);
-      var size = 0.001;
-      IfdOrder(MarketOrderParam(marketside, size), TrailOrderParam(trailside, size, offset));
+      params['before_price'] = payload.mid_price;
     });
-  }, 1000);
+    setTimeout(function() {
+      getBoard(function(payload) {
+        params['after_price'] = payload.mid_price;
+        var offset = params.after_price - params.before_price;
+        var marketside = (offset > 0) ? BUY : SELL;
+        var trailside = (offset > 0) ? SELL : BUY;
+        console.log("価格変化:" + offset);
+        console.log("成行注文:" + marketside);
+        console.log("TRAIL注文:" + trailside);
+        offset = Math.abs(offset) / 2;
+        var size = 0.001;
+        if (offset > 50) {
+          IfdOrder(MarketOrderParam(marketside, size), TrailOrderParam(trailside, size, offset));
+        } else {
+          console.log("注文せず")
+        };
+      });
+    }, 2000);
+  }, 1000)
 }())
 
 
